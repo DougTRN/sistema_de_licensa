@@ -1,0 +1,20 @@
+<header class="fixed left-64 right-0 top-0 z-40 bg-slate-50/90 backdrop-blur-xl border-b border-slate-200/50 px-8 py-4 flex items-center justify-between">
+  <div class="flex items-center gap-6 w-full max-w-3xl">
+    <h1 class="text-xl font-bold tracking-tight text-blue-900">{{ page_title }}</h1>
+    <div class="relative flex-1 max-w-xl">
+      <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+      <input type="text" placeholder="{{ t.search_placeholder }}" class="w-full rounded-full border-none bg-surface-container-high py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-secondary/50" />
+    </div>
+  </div>
+  <div class="flex items-center gap-4">
+    <a href="{{ toggle_lang_url }}" class="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100 transition">{{ t.lang_toggle }}</a>
+    {% if request.user.is_authenticated %}
+    <a href="{% url 'ledger:logout' %}" class="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100 transition">Sair</a>
+    {% endif %}
+    <button class="p-2 text-slate-500 hover:bg-slate-200/50 rounded-full transition-colors relative">
+      <span class="material-symbols-outlined">notifications</span>
+      <span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
+    </button>
+    <div class="h-10 w-10 rounded-full bg-primary-container overflow-hidden border-2 border-white shadow-sm"></div>
+  </div>
+</header>

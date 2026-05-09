@@ -1,0 +1,107 @@
+{% extends "ledger/base.html" %}
+{% block content %}
+<div class="grid grid-cols-1 xl:grid-cols-[2fr_1fr] gap-8">
+  <section class="space-y-6">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {% for metric in metrics %}
+      <div class="bg-surface-container-lowest rounded-3xl p-6 shadow-sm border border-slate-200/50">
+        <p class="text-label-sm uppercase tracking-[0.24em] text-slate-500 mb-2">{{ metric.label }}</p>
+        <p class="text-3xl font-bold text-primary">{{ metric.value }}</p>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="bg-surface-container-lowest rounded-3xl shadow-sm border border-slate-200/50 overflow-hidden">
+      <div class="grid grid-cols-5 gap-4 px-6 py-3 text-[0.65rem] font-bold uppercase tracking-[0.24em] text-slate-500 bg-slate-100">
+        <div class="col-span-2">{{ table_workstation_identity }}</div>
+        <div>{{ table_current_user }}</div>
+        <div>{{ table_department }}</div>
+        <div class="text-right">{{ table_status }}</div>
+      </div>
+      <div class="space-y-3 p-4">
+        {% for machine in machines %}
+        <div class="grid grid-cols-5 gap-4 items-center rounded-3xl bg-white p-4 shadow-sm hover:bg-slate-50 transition border-l-4 {% if machine.status == 'active' %}border-secondary{% else %}border-transparent{% endif %}">
+          <div class="col-span-2 flex items-center gap-4">
+            <div class="w-12 h-12 rounded-2xl bg-surface-container-high flex items-center justify-center text-primary"><span class="material-symbols-outlined">desktop_windows</span></div>
+            <div>
+              <p class="font-semibold">{{ machine.id }}</p>
+              <p class="text-xs text-slate-500">{{ machine.model }}</p>
+            </div>
+          </div>
+          <div class="text-sm font-medium text-on-surface">{{ machine.user }}</div>
+          <div><span class="rounded-full px-3 py-1 text-xs font-semibold bg-slate-100 text-slate-700">{{ machine.department }}</span></div>
+          <div class="text-right">
+            <span class="inline-block w-3 h-3 rounded-full {% if machine.status == 'active' %}bg-secondary{% else %}bg-slate-300{% endif %}"></span>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+  <aside class="space-y-6">
+    <div class="bg-surface-container-lowest rounded-3xl p-6 shadow-sm border border-slate-200/50">
+      <div class="flex items-center gap-4 mb-4">
+        <div class="w-14 h-14 rounded-3xl bg-primary text-white flex items-center justify-center text-2xl"><span class="material-symbols-outlined">computer</span></div>
+        <div>
+          <h2 class="text-xl font-bold">WS-PRD-4029</h2>
+          <p class="text-sm text-slate-500">Building A, Room 402 - Desk 19</p>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div class="rounded-3xl bg-surface-container-high p-4">
+          <p class="text-xs uppercase tracking-[0.24em] text-slate-500">OS Version</p>
+          <p class="mt-2 font-semibold">Windows 11 Pro</p>
+        </div>
+        <div class="rounded-3xl bg-surface-container-high p-4">
+          <p class="text-xs uppercase tracking-[0.24em] text-slate-500">RAM</p>
+          <p class="mt-2 font-semibold">64GB ECC DDR4</p>
+        </div>
+        <div class="rounded-3xl bg-surface-container-high p-4">
+          <p class="text-xs uppercase tracking-[0.24em] text-slate-500">CPU</p>
+          <p class="mt-2 font-semibold">Xeon W-2223</p>
+        </div>
+        <div class="rounded-3xl bg-surface-container-high p-4">
+          <p class="text-xs uppercase tracking-[0.24em] text-slate-500">Storage</p>
+          <p class="mt-2 font-semibold">1TB NVMe Gen4</p>
+        </div>
+      </div>
+    </div>
+    <div class="bg-surface-container-lowest rounded-3xl p-6 shadow-sm border border-slate-200/50">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="font-semibold text-primary">{{ software_installed }}</h3>
+        <span class="text-sm text-slate-500">8 Apps</span>
+      </div>
+      <div class="space-y-3">
+        <div class="rounded-3xl bg-surface-container-high p-4 flex items-center gap-3">
+          <span class="material-symbols-outlined text-primary">widgets</span>
+          <div>
+            <p class="font-semibold">AutoCAD 2024</p>
+            <p class="text-xs text-slate-500">v24.2.1</p>
+          </div>
+        </div>
+        <div class="rounded-3xl bg-surface-container-high p-4 flex items-center gap-3">
+          <span class="material-symbols-outlined text-primary">integration_instructions</span>
+          <div>
+            <p class="font-semibold">Adobe Creative Cloud</p>
+            <p class="text-xs text-slate-500">v6.1.0</p>
+          </div>
+        </div>
+        <div class="rounded-3xl bg-surface-container-high p-4 flex items-center gap-3">
+          <span class="material-symbols-outlined text-primary">settings_applications</span>
+          <div>
+            <p class="font-semibold">Microsoft 365</p>
+            <p class="text-xs text-slate-500">v2311</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="bg-primary-container rounded-3xl p-6 text-white shadow-md">
+      <p class="text-xs uppercase tracking-[0.24em] opacity-80">{{ linked_licenses }}</p>
+      <div class="mt-4 rounded-3xl bg-slate-950 p-4">
+        <p class="text-xs uppercase tracking-[0.24em] text-slate-400">{{ license_id }}</p>
+        <p class="mt-2 font-semibold">ACAD-2024-PRD-49102</p>
+        <p class="text-xs text-slate-300 mt-3">{{ renewal_date }} Oct 12, 2025</p>
+      </div>
+    </div>
+  </aside>
+</div>
+{% endblock %}

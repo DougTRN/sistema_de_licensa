@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Ledger - Arquitetural Ledger</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            surface: '#f4f5f7',
+            'surface-container-low': '#eef2f7',
+            'surface-container-lowest': '#ffffff',
+            primary: '#334155',
+            'primary-container': '#475569',
+            secondary: '#556b72',
+            'on-surface': '#0f172a',
+            'on-surface-variant': '#64748b',
+            outline: '#94a3b8',
+          },
+          boxShadow: {
+            'editorial': '0 8px 24px -18px rgba(15,23,42,0.08)',
+          },
+        },
+      },
+    }
+  </script>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/app.css' %}" />
+</head>
+<body class="min-h-screen">
+  {% if hide_navigation %}
+  <main class="min-h-screen">
+    <div class="pt-24 px-4 pb-12 sm:px-6 lg:px-8">
+  {% else %}
+  <div class="flex">
+    {% include 'ledger/components/sidebar.html' %}
+    <main class="ml-64 flex-1">
+      {% include 'ledger/components/topbar.html' %}
+      <div class="pt-24 px-8 pb-12">
+  {% endif %}
+        {% if messages %}
+        <div class="space-y-4 mb-6">
+          {% for message in messages %}
+          <div class="rounded-2xl border px-4 py-3 text-sm font-medium {% if message.tags == 'success' %}border-emerald-200 bg-emerald-50 text-emerald-800{% elif message.tags == 'error' or message.tags == 'danger' %}border-rose-200 bg-rose-50 text-rose-800{% else %}border-slate-200 bg-slate-50 text-slate-800{% endif %}">
+            {{ message }}
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+        {% block content %}{% endblock %}
+  {% if hide_navigation %}
+    </div>
+  </main>
+  {% else %}
+      </div>
+    </main>
+  </div>
+  {% endif %}
+</body>
+</html>

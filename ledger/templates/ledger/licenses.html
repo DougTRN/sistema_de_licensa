@@ -1,0 +1,74 @@
+{% extends "ledger/base.html" %}
+{% block content %}
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
+  <div>
+    <h1 class="text-4xl font-extrabold text-primary">{{ page_title }}</h1>
+    <p class="text-on-surface-variant mt-2">{{ page_subtitle }}</p>
+  </div>
+  <div class="flex flex-wrap gap-3 items-center">
+    <div class="relative">
+      <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+      <input type="text" placeholder="{{ search_placeholder }}" class="rounded-full bg-surface-container-high pl-10 pr-4 py-2 text-sm focus:ring-2 focus:ring-secondary/50" />
+    </div>
+    <button class="rounded-full bg-surface-container-high px-4 py-2 text-sm font-semibold hover:bg-surface-container-lowest transition">{{ btn_filters }}</button>
+  </div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+  {% for item in summary %}
+  <div class="rounded-3xl p-6 shadow-sm border border-slate-200/50 {% if item.accent == 'primary' %}border-primary bg-white{% elif item.accent == 'secondary' %}border-secondary bg-white{% else %}bg-primary text-white shadow-md{% endif %}">
+    <p class="text-label-sm uppercase tracking-[0.24em] text-slate-500">{{ item.title }}</p>
+    <p class="text-3xl font-bold mt-3">{{ item.value }}</p>
+  </div>
+  {% endfor %}
+</div>
+<div class="space-y-4 mb-10">
+  {% for item in items %}
+  <div class="bg-surface-container-lowest rounded-3xl p-5 shadow-sm border border-slate-200/50 grid grid-cols-1 md:grid-cols-[2fr_1fr_1fr_1fr] gap-4 items-center">
+    <div>
+      <p class="font-semibold text-primary">{{ item.name }}</p>
+      <p class="text-sm text-slate-500">{{ item.type }}</p>
+    </div>
+    <div class="text-sm text-slate-700">{{ item.usage }}</div>
+    <div class="text-sm text-slate-500">{{ item.expires }}</div>
+    <div class="flex justify-end">
+      <span class="rounded-full px-3 py-1 text-xs font-semibold {% if item.status == 'ACTIVE' %}bg-emerald-100 text-emerald-700{% elif item.status == 'OVER-LIMIT' or item.status == 'EXPIRED' %}bg-rose-100 text-rose-700{% else %}bg-slate-100 text-slate-700{% endif %}">{{ item.status }}</span>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+<div class="bg-surface-container-lowest rounded-3xl p-6 shadow-sm border border-slate-200/50 grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-6">
+  <div class="space-y-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="bg-surface-container-high rounded-3xl p-4">
+        <p class="text-xs uppercase tracking-[0.24em] text-slate-500">License Key / Secret</p>
+        <div class="mt-3 rounded-3xl bg-white p-4 flex items-center justify-between text-sm font-medium">••••••••••••••••<span class="material-symbols-outlined text-slate-400">visibility</span></div>
+      </div>
+      <div class="bg-surface-container-high rounded-3xl p-4">
+        <p class="text-xs uppercase tracking-[0.24em] text-slate-500">Purchase Reference</p>
+        <p class="mt-3 text-sm font-semibold">PO #44012 - Global Procurement</p>
+      </div>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="bg-surface-container-high rounded-3xl p-4">
+        <p class="text-xs uppercase tracking-[0.24em] text-slate-500">Asset Owner</p>
+        <p class="mt-3 text-sm font-semibold">IT Core Infrastructure</p>
+      </div>
+      <div class="bg-surface-container-high rounded-3xl p-4">
+        <p class="text-xs uppercase tracking-[0.24em] text-slate-500">Audit Interval</p>
+        <div class="mt-3 flex gap-3 text-sm font-semibold text-slate-700">
+          <span>Quarterly</span>
+          <span>Annual</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <aside class="bg-white rounded-3xl p-5 shadow-sm border border-slate-200/50">
+    <p class="text-sm font-semibold text-primary mb-4">Lifecycle Actions</p>
+    <div class="space-y-3">
+      <button class="w-full rounded-2xl bg-surface-container-high py-3 text-sm font-semibold hover:bg-surface-container-lowest transition">{{ btn_renew_license }}</button>
+      <button class="w-full rounded-2xl bg-surface-container-high py-3 text-sm font-semibold hover:bg-surface-container-lowest transition">{{ btn_export_compliance }}</button>
+      <button class="w-full rounded-2xl bg-rose-600 text-white py-3 text-sm font-semibold hover:bg-rose-700 transition">{{ btn_revoke_access }}</button>
+    </div>
+  </aside>
+</div>
+{% endblock %}

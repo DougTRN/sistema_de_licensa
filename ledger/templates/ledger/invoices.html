@@ -1,0 +1,82 @@
+{% extends "ledger/base.html" %}
+{% block content %}
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
+  <div>
+    <h1 class="text-4xl font-bold text-primary">{{ page_title }}</h1>
+    <p class="text-on-surface-variant mt-2">{{ page_subtitle }}</p>
+  </div>
+  <button class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-br from-primary to-primary-container text-white rounded-xl font-bold shadow-editorial hover:opacity-90 transition"> 
+    <span class="material-symbols-outlined">add</span>
+    {{ btn_new_invoice }}
+  </button>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-8">
+  <div class="space-y-4">
+    <div class="bg-surface-container-lowest rounded-3xl shadow-sm border border-slate-200/50 overflow-hidden">
+      <div class="grid grid-cols-5 gap-4 px-6 py-4 text-[0.65rem] font-bold uppercase tracking-[0.24em] text-slate-500 bg-slate-100">
+        <div>{{ label_nf_number }}</div>
+        <div>{{ label_supplier }}</div>
+        <div class="text-center">{{ label_date }}</div>
+        <div class="text-right">{{ label_value }}</div>
+        <div class="text-right">{{ label_files }}</div>
+      </div>
+      <div class="space-y-3 p-4">
+        {% for record in records %}
+        <div class="grid grid-cols-5 gap-4 items-center bg-white rounded-3xl p-5 shadow-sm hover:bg-slate-50 transition">
+          <div class="font-bold text-primary">{{ record.number }}</div>
+          <div class="text-sm font-medium text-on-surface">{{ record.supplier }}</div>
+          <div class="text-sm text-center text-on-surface-variant">{{ record.date }}</div>
+          <div class="text-sm font-bold text-right text-primary">{{ record.value }}</div>
+          <div class="flex justify-end gap-2">
+            <button class="w-10 h-10 rounded-xl bg-surface-container-high text-primary hover:bg-secondary/10 transition"><span class="material-symbols-outlined">picture_as_pdf</span></button>
+            <button class="w-10 h-10 rounded-xl bg-surface-container-high text-primary hover:bg-secondary/10 transition"><span class="material-symbols-outlined">code</span></button>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  <aside class="space-y-6">
+    <div class="bg-surface-container-lowest rounded-3xl p-6 shadow-sm border border-slate-200/50">
+      <h3 class="font-semibold text-primary mb-4">{{ form_manual_entry }}</h3>
+      <p class="text-sm text-slate-500 mb-6">{{ form_manual_entry_description }}</p>
+      <div class="space-y-4">
+        <div>
+          <label class="text-xs uppercase tracking-[0.24em] text-slate-500">{{ form_nf_number }}</label>
+          <input type="text" placeholder="Ex: 102.394.881" class="mt-2 w-full rounded-3xl bg-surface-container-high py-3 px-4 border-none text-sm" />
+        </div>
+        <div>
+          <label class="text-xs uppercase tracking-[0.24em] text-slate-500">{{ form_supplier }}</label>
+          <input type="text" placeholder="Select legal entity..." class="mt-2 w-full rounded-3xl bg-surface-container-high py-3 px-4 border-none text-sm" />
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="text-xs uppercase tracking-[0.24em] text-slate-500">{{ form_date }}</label>
+            <input type="text" placeholder="mm/dd/yy" class="mt-2 w-full rounded-3xl bg-surface-container-high py-3 px-4 border-none text-sm" />
+          </div>
+          <div>
+            <label class="text-xs uppercase tracking-[0.24em] text-slate-500">{{ form_total_value }}</label>
+            <input type="text" placeholder="$0.00" class="mt-2 w-full rounded-3xl bg-surface-container-high py-3 px-4 border-none text-sm" />
+          </div>
+        </div>
+        <div class="rounded-3xl border border-dashed border-slate-300 bg-surface-container-high p-6 text-center text-slate-500">
+          <span class="material-symbols-outlined text-3xl mb-3 inline-block">cloud_upload</span>
+          <p class="text-sm">{{ form_drop_label }}</p>
+          <p class="text-xs text-slate-400 mt-1">{{ form_drop_note }}</p>
+        </div>
+      </div>
+      <button class="mt-6 w-full bg-primary text-white py-3 rounded-xl font-bold hover:opacity-90 transition">{{ btn_finalize_record }}</button>
+    </div>
+    <div class="grid grid-cols-2 gap-4">
+      <div class="bg-surface-container-lowest rounded-3xl p-5 shadow-sm border border-slate-200/50">
+        <p class="text-xs uppercase tracking-[0.24em] text-slate-500">{{ label_monthly_cap }}</p>
+        <p class="mt-3 text-2xl font-extrabold">$38k</p>
+      </div>
+      <div class="bg-surface-container-lowest rounded-3xl p-5 shadow-sm border border-slate-200/50">
+        <p class="text-xs uppercase tracking-[0.24em] text-slate-500">{{ label_validated }}</p>
+        <p class="mt-3 text-2xl font-extrabold">24</p>
+      </div>
+    </div>
+  </aside>
+</div>
+{% endblock %}
