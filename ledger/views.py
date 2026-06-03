@@ -1,215 +1,37 @@
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login, get_user_model
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.views import LoginView
+from django.core.mail import send_mail
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
+from django.utils.encoding import force_bytes, force_str
+from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.views.generic.edit import FormView
-
-from .forms import RegisterForm
 
 User = get_user_model()
 
-
-TRANSLATIONS = {
-    "en": {
-        "nav_dashboard": "Dashboard",
-        "nav_invoices": "Invoices",
-        "nav_licenses": "Licenses",
-        "nav_machines": "Machines",
-        "btn_new_asset": "New Asset",
-        "btn_settings": "Settings",
-        "btn_support": "Support",
-        "search_placeholder": "Search...",
-        "lang_toggle": "Português",
-        "dashboard_title": "Strategic Overview",
-        "dashboard_subtitle": "Global IT inventory and license compliance status.",
-        "btn_generate_report": "Generate Report",
-        "btn_export_csv": "Export CSV",
-        "card_total_assets": "Total Assets",
-        "card_active_licenses": "Active Licenses",
-        "card_monthly_spend": "Monthly Spend",
-        "section_critical_alerts": "Critical Alerts",
-        "section_software_utilization": "Software Utilization by Sector",
-        "section_recent_history": "Recent Movement History",
-        "view_all": "View all",
-        "alerts": [
-            {
-                "title": "License Compliance Risk",
-                "description": "Adobe Creative Cloud licenses exceeded. 142 machines detected vs 120 allocated seats. Potential audit liability: $3,200.",
-                "label": "2 issues detected",
-                "type": "critical",
-            },
-            {
-                "title": "Expiring Software Contracts",
-                "description": "JetBrains Enterprise renewal due in 14 days. Estimated cost: $12,450.",
-                "label": "Review Invoice",
-                "type": "warning",
-            },
-        ],
-        "history": [
-            {"title": "MacBook Pro M3 Provisioned", "subtitle": "Assigned to: Sara Chen (Engineering)", "tag": "ASSET TAG AM-4320", "time": "14 mins ago", "type": "success"},
-            {"title": "License Reallocation", "subtitle": "AutoCAD Suite moved from Marketing to R&D pool.", "tag": "SOFT-ASSET", "time": "1 hour ago", "type": "info"},
-            {"title": "Decommissioned Hardware", "subtitle": "Dell XPS 15 (2020) retired for parts.", "tag": "END-OF-LIFE", "time": "4 hours ago", "type": "danger"},
-        ],
-        "portfolios": [
-            {"name": "Microsoft 365 Enterprise", "description": "Standard Enterprise Suite", "value": "1,200 seats allocated", "accent": "dark"},
-            {"name": "Slack Business+", "description": "Messaging & Collab", "value": "840", "accent": "green"},
-            {"name": "Adobe Creative Cloud", "description": "Creative Suite", "value": "142", "accent": "red"},
-        ],
-        "page_invoices": "Invoices",
-        "invoices_description": "Digital curation of fiscal assets and expenditure verification.",
-        "btn_new_invoice": "New Invoice",
-        "label_nf_number": "NF Number",
-        "label_supplier": "Supplier",
-        "label_date": "Date",
-        "label_value": "Value",
-        "label_files": "Files",
-        "form_manual_entry": "Manual Entry",
-        "form_manual_entry_description": "Enter fiscal data precisely as issued.",
-        "form_nf_number": "NF Number",
-        "form_supplier": "Supplier",
-        "form_date": "Date",
-        "form_total_value": "Total Value",
-        "form_drop_label": "Drop PDF or XML here",
-        "form_drop_note": "Maximum file size: 10MB",
-        "btn_finalize_record": "Finalize Record",
-        "label_monthly_cap": "Monthly Cap",
-        "label_validated": "Validated",
-        "page_licenses": "Software License Inventory",
-        "licenses_description": "Software license control and strategic compliance.",
-        "search_licenses": "Search licenses...",
-        "btn_filters": "Filters",
-        "label_expiring_next_30_days": "Expiring Next 30 Days",
-        "label_healthy_status": "Healthy Status",
-        "label_software_asset": "Software Asset",
-        "label_license_type": "License Type",
-        "label_allocation": "Allocation",
-        "label_expiration": "Expiration",
-        "label_status": "Status",
-        "label_license_key": "License Key / Secret",
-        "label_purchase_reference": "Purchase Reference",
-        "label_asset_owner": "Asset Owner",
-        "label_audit_interval": "Audit Interval",
-        "label_lifecycle_actions": "Lifecycle Actions",
-        "btn_renew_license": "Renew License",
-        "btn_export_compliance": "Export Compliance PDF",
-        "btn_revoke_access": "Revoke Access",
-        "page_machines": "Machines Control",
-        "metric_total_assets": "Total Assets",
-        "metric_active_now": "Active Now",
-        "metric_avg_health": "Avg. Health",
-        "table_workstation_identity": "Workstation Identity",
-        "table_current_user": "Current User",
-        "table_department": "Department",
-        "table_status": "Status",
-        "software_installed": "Installed Software",
-        "linked_licenses": "Linked Licenses",
-        "license_id": "License ID",
-        "renewal_date": "Renewal",
-    },
-    "pt": {
-        "nav_dashboard": "Painel",
-        "nav_invoices": "Notas Fiscais",
-        "nav_licenses": "Licenças",
-        "nav_machines": "Máquinas",
-        "btn_new_asset": "Novo Ativo",
-        "btn_settings": "Configurações",
-        "btn_support": "Suporte",
-        "search_placeholder": "Pesquisar...",
-        "lang_toggle": "English",
-        "dashboard_title": "Visão Estratégica",
-        "dashboard_subtitle": "Inventário global de TI e status de conformidade.",
-        "btn_generate_report": "Gerar Relatório",
-        "btn_export_csv": "Exportar CSV",
-        "card_total_assets": "Total de Ativos",
-        "card_active_licenses": "Licenças Ativas",
-        "card_monthly_spend": "Gasto Mensal",
-        "section_critical_alerts": "Alertas Críticos",
-        "section_software_utilization": "Utilização de Software por Setor",
-        "section_recent_history": "Histórico de Movimentações",
-        "view_all": "Ver tudo",
-        "alerts": [
-            {
-                "title": "Risco de Conformidade de Licença",
-                "description": "Licenças do Adobe Creative Cloud excedidas. 142 máquinas detectadas vs 120 assentos alocados. Possível passivo de auditoria: $3.200.",
-                "label": "2 problemas detectados",
-                "type": "critical",
-            },
-            {
-                "title": "Contratos de Software a Vencer",
-                "description": "Renovação do JetBrains Enterprise em 14 dias. Custo estimado: $12.450.",
-                "label": "Revisar Nota",
-                "type": "warning",
-            },
-        ],
-        "history": [
-            {"title": "MacBook Pro M3 Provisionado", "subtitle": "Atribuído para: Sara Chen (Engenharia)", "tag": "TAG DO ATIVO AM-4320", "time": "14 min atrás", "type": "success"},
-            {"title": "Realocação de Licença", "subtitle": "Suite AutoCAD movida de Marketing para o pool de P&D.", "tag": "SOFT-ATIVO", "time": "1 hora atrás", "type": "info"},
-            {"title": "Hardware Descomissionado", "subtitle": "Dell XPS 15 (2020) aposentado para peças.", "tag": "FIM-DE-VIDA", "time": "4 horas atrás", "type": "danger"},
-        ],
-        "portfolios": [
-            {"name": "Microsoft 365 Enterprise", "description": "Suite Empresarial Padrão", "value": "1.200 assentos alocados", "accent": "dark"},
-            {"name": "Slack Business+", "description": "Mensagens e Colaboração", "value": "840", "accent": "green"},
-            {"name": "Adobe Creative Cloud", "description": "Suite Criativa", "value": "142", "accent": "red"},
-        ],
-        "page_invoices": "Notas Fiscais",
-        "invoices_description": "Curadoria digital de ativos fiscais e verificação de despesas.",
-        "btn_new_invoice": "Nova Nota",
-        "label_nf_number": "Número NF",
-        "label_supplier": "Fornecedor",
-        "label_date": "Data",
-        "label_value": "Valor",
-        "label_files": "Arquivos",
-        "form_manual_entry": "Entrada Manual",
-        "form_manual_entry_description": "Insira os dados fiscais com precisão conforme emitido.",
-        "form_nf_number": "Número NF",
-        "form_supplier": "Fornecedor",
-        "form_date": "Data",
-        "form_total_value": "Valor Total",
-        "form_drop_label": "Solte PDF ou XML aqui",
-        "form_drop_note": "Tamanho máximo do arquivo: 10MB",
-        "btn_finalize_record": "Finalizar Registro",
-        "label_monthly_cap": "Cap Mensal",
-        "label_validated": "Validado",
-        "page_licenses": "Inventário de Licenças de Software",
-        "licenses_description": "Controle de Licenças e Conformidade Estratégica",
-        "search_licenses": "Pesquisar licenças...",
-        "btn_filters": "Filtros",
-        "label_expiring_next_30_days": "Vencendo nos Próximos 30 Dias",
-        "label_healthy_status": "Status Saudável",
-        "label_software_asset": "Ativo de Software",
-        "label_license_type": "Tipo de Licença",
-        "label_allocation": "Alocação",
-        "label_expiration": "Expiração",
-        "label_status": "Status",
-        "label_license_key": "Chave / Segredo da Licença",
-        "label_purchase_reference": "Referência de Compra",
-        "label_asset_owner": "Responsável pelo Ativo",
-        "label_audit_interval": "Intervalo de Auditoria",
-        "label_lifecycle_actions": "Ações de Ciclo de Vida",
-        "btn_renew_license": "Renovar Licença",
-        "btn_export_compliance": "Exportar PDF de Conformidade",
-        "btn_revoke_access": "Revogar Acesso",
-        "page_machines": "Controle de Máquinas",
-        "metric_total_assets": "Total de Ativos",
-        "metric_active_now": "Ativas Agora",
-        "metric_avg_health": "Média de Saúde",
-        "table_workstation_identity": "Identidade da Estação",
-        "table_current_user": "Usuário Atual",
-        "table_department": "Departamento",
-        "table_status": "Status",
-        "software_installed": "Software Instalado",
-        "linked_licenses": "Licenças Vinculadas",
-        "license_id": "ID da Licença",
-        "renewal_date": "Renovação",
-    },
-}
+from .forms import (
+    RegisterForm,
+    PasswordResetRequestForm,
+    PasswordResetConfirmForm,
+)
+from .mock_data import (
+    TRANSLATIONS,
+    DASHBOARD_STATS,
+    INVOICES_RECORDS,
+    LICENSES_SUMMARY,
+    LICENSES_ITEMS,
+    MACHINES_METRICS,
+    MACHINES_LIST,
+)
 
 
 def get_language(request):
-    lang = request.GET.get("lang", "en")
-    return lang if lang in TRANSLATIONS else "en"
+    lang = request.GET.get("lang", "pt")
+    return lang if lang in TRANSLATIONS else "pt"
 
 
 def get_toggle_url(request, lang):
@@ -220,9 +42,11 @@ def get_toggle_url(request, lang):
 def get_base_context(request, active_page):
     lang = get_language(request)
     t = TRANSLATIONS[lang]
+    html_lang = "pt-BR" if lang == "pt" else "en"
     return {
         "active_page": active_page,
         "lang": lang,
+        "html_lang": html_lang,
         "t": t,
         "toggle_lang_url": get_toggle_url(request, lang),
     }
@@ -274,9 +98,8 @@ def dashboard(request):
             "btn_generate_report": t["btn_generate_report"],
             "btn_export_csv": t["btn_export_csv"],
             "stats": [
-                {"label": t["card_total_assets"], "value": "1,520", "change": "+8%", "icon": "inventory_2"},
-                {"label": t["card_active_licenses"], "value": "932", "change": "+5%", "icon": "verified"},
-                {"label": t["card_monthly_spend"], "value": "$48,300", "change": "-2%", "icon": "paid"},
+                {"label": t[stat["label"]], "value": stat["value"], "change": stat["change"], "icon": stat["icon"]}
+                for stat in DASHBOARD_STATS
             ],
             "section_critical_alerts": t["section_critical_alerts"],
             "section_software_utilization": t["section_software_utilization"],
@@ -288,6 +111,97 @@ def dashboard(request):
         }
     )
     return render(request, "ledger/dashboard.html", context)
+
+
+def password_reset_request(request):
+    lang = get_language(request)
+    t = TRANSLATIONS[lang]
+    form = PasswordResetRequestForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        user = form.get_user()
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+        token = default_token_generator.make_token(user)
+        reset_url = request.build_absolute_uri(
+            reverse_lazy("ledger:password_reset_confirm", kwargs={"uidb64": uid, "token": token})
+        )
+        subject = "Ledger - Redefinição de senha"
+        message = (
+            f"Olá {user.first_name or user.username},\n\n"
+            f"Para criar uma nova senha, acesse o link abaixo:\n{reset_url}\n\n"
+            "Se você não solicitou a redefinição, ignore esta mensagem.\n"
+        )
+        send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [user.email], fail_silently=False)
+        messages.success(request, "Link de redefinição enviado por e-mail.")
+        return redirect("ledger:login")
+
+    context = get_base_context(request, "login")
+    context.update(
+        {
+            "page_title": t["reset_password_title"],
+            "page_subtitle": t["reset_password_subtitle"],
+            "reset_password_email_label": t["reset_password_email_label"],
+            "reset_password_button": t["reset_password_button"],
+            "reset_password_back_login": t["reset_password_back_login"],
+            "form": form,
+        }
+    )
+    context["hide_navigation"] = True
+    return render(request, "ledger/password_reset.html", context)
+
+
+def password_reset_confirm(request, uidb64, token):
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+
+    if user is None or not default_token_generator.check_token(user, token):
+        messages.error(request, "Link inválido ou expirado. Solicite uma nova redefinição.")
+        return redirect("ledger:password_reset")
+
+    lang = get_language(request)
+    t = TRANSLATIONS[lang]
+    form = PasswordResetConfirmForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        user.set_password(form.cleaned_data["password1"])
+        user.save()
+        messages.success(request, "Senha redefinida com sucesso. Agora faça login.")
+        return redirect("ledger:login")
+
+    context = get_base_context(request, "login")
+    context.update(
+        {
+            "page_title": t["new_password_title"],
+            "page_subtitle": t["new_password_subtitle"],
+            "new_password_label": t["new_password_label"],
+            "new_password_confirm_label": t["new_password_confirm_label"],
+            "new_password_button": t["new_password_button"],
+            "reset_password_back_login": t["reset_password_back_login"],
+            "form": form,
+        }
+    )
+    context["hide_navigation"] = True
+    return render(request, "ledger/password_reset_confirm.html", context)
+
+
+@login_required(login_url=reverse_lazy("ledger:login"))
+def profile(request):
+    lang = get_language(request)
+    t = TRANSLATIONS[lang]
+    context = get_base_context(request, "profile")
+    context.update(
+        {
+            "page_title": t["profile_title"],
+            "page_subtitle": t["profile_subtitle"],
+            "label_username": t["label_username"],
+            "label_name": t["label_name"],
+            "label_email": t["label_email"],
+            "label_date_joined": t["label_date_joined"],
+            "profile_user": request.user,
+        }
+    )
+    return render(request, "ledger/profile.html", context)
 
 
 @login_required(login_url=reverse_lazy("ledger:login"))
@@ -308,20 +222,18 @@ def invoices(request):
             "form_manual_entry": t["form_manual_entry"],
             "form_manual_entry_description": t["form_manual_entry_description"],
             "form_nf_number": t["form_nf_number"],
+            "form_series": t["form_series"],
             "form_supplier": t["form_supplier"],
+            "form_cnpj": t["form_cnpj"],
             "form_date": t["form_date"],
             "form_total_value": t["form_total_value"],
             "form_drop_label": t["form_drop_label"],
             "form_drop_note": t["form_drop_note"],
             "btn_finalize_record": t["btn_finalize_record"],
+            "modal_series_label": t["modal_series_label"],
             "label_monthly_cap": t["label_monthly_cap"],
             "label_validated": t["label_validated"],
-            "records": [
-                {"number": "#NF-902341", "supplier": "DataStream Systems", "date": "Oct 12, 2024", "value": "$12,450.00"},
-                {"number": "#NF-882109", "supplier": "CloudScale Infra", "date": "Oct 08, 2024", "value": "$4,820.50"},
-                {"number": "#NF-876551", "supplier": "Vertex Security", "date": "Sep 28, 2024", "value": "$2,100.00"},
-                {"number": "#NF-854123", "supplier": "Core Net Tech", "date": "Sep 15, 2024", "value": "$18,900.00"},
-            ],
+            "records": INVOICES_RECORDS,
         }
     )
     return render(request, "ledger/invoices.html", context)
@@ -339,15 +251,18 @@ def licenses(request):
             "search_placeholder": t["search_licenses"],
             "btn_filters": t["btn_filters"],
             "summary": [
-                {"title": t["card_total_assets"], "value": "482", "accent": "primary"},
-                {"title": t["label_healthy_status"], "value": "94%", "accent": "secondary"},
-                {"title": t["label_expiring_next_30_days"], "value": "12 Licenses", "accent": "dark"},
+                {"title": t[summary["title"]], "value": summary["value"], "accent": summary["accent"]}
+                for summary in LICENSES_SUMMARY
             ],
             "items": [
-                {"name": "Windows 11 Enterprise", "type": t["label_license_type"], "usage": "215 / 250", "expires": "Oct 14, 2025", "status": "ACTIVE"},
-                {"name": "Office 365 Business Premium", "type": t["label_license_type"], "usage": "105 / 100", "expires": "Nov 22, 2024", "status": "OVER-LIMIT"},
-                {"name": "Adobe Creative Cloud", "type": t["label_license_type"], "usage": "12 / 15", "expires": "Dec 01, 2023", "status": "EXPIRED"},
-                {"name": "Slack Enterprise Grid", "type": t["label_license_type"], "usage": "450 / 500", "expires": "May 10, 2025", "status": "ACTIVE"},
+                {
+                    "name": item["name"],
+                    "type": t["label_license_type"],
+                    "usage": item["usage"],
+                    "expires": item["expires"],
+                    "status": item["status"]
+                }
+                for item in LICENSES_ITEMS
             ],
             "label_software_asset": t["label_software_asset"],
             "label_allocation": t["label_allocation"],
@@ -375,9 +290,8 @@ def machines(request):
         {
             "page_title": t["page_machines"],
             "metrics": [
-                {"label": t["metric_total_assets"], "value": "128"},
-                {"label": t["metric_active_now"], "value": "94"},
-                {"label": t["metric_avg_health"], "value": "98%"},
+                {"label": t[metric["label"]], "value": metric["value"]}
+                for metric in MACHINES_METRICS
             ],
             "table_workstation_identity": t["table_workstation_identity"],
             "table_current_user": t["table_current_user"],
@@ -387,13 +301,7 @@ def machines(request):
             "linked_licenses": t["linked_licenses"],
             "license_id": t["license_id"],
             "renewal_date": t["renewal_date"],
-            "machines": [
-                {"id": "WS-PRD-4029", "model": "Dell Precision 5820", "user": "Elena Rodriguez", "department": "Engineering", "status": "active"},
-                {"id": "MBP-DSG-011", "model": "MacBook Pro M2", "user": "Marcus Thorne", "department": "Design", "status": "active"},
-                {"id": "WS-FIN-992", "model": "HP Z6 G4 Tower", "user": "Sarah Jenkins", "department": "Finance", "status": "offline"},
-                {"id": "WS-PRD-102", "model": "Dell Latitude 7420", "user": "Arthur Dent", "department": "Operations", "status": "active"},
-                {"id": "MBP-EXE-001", "model": "MacBook Pro 16'", "user": "Thomas Shelby", "department": "Executive", "status": "active"},
-            ],
+            "machines": MACHINES_LIST,
         }
     )
     return render(request, "ledger/machines.html", context)

@@ -1,35 +1,48 @@
-<aside class="h-screen w-64 fixed left-0 top-0 z-50 bg-slate-100 flex flex-col p-5 shadow-sm">
-  <div class="text-lg font-bold text-blue-950 mb-6">The Ledger</div>
+<aside id="sidebar" class="h-screen w-64 fixed left-0 top-0 z-50 bg-slate-100 flex flex-col p-5 shadow-lg transition-all duration-300 ease-in-out">
+  <div class="flex items-center justify-between mb-6">
+    <span class="text-lg font-bold text-blue-950 nav-label transition-opacity duration-200">Ledger</span>
+    <button id="sidebar-toggle" class="flex items-center justify-center w-8 h-8 rounded-lg text-slate-500 hover:text-blue-900 hover:bg-slate-200 transition-colors flex-shrink-0" title="Toggle sidebar">
+      <span class="material-symbols-outlined transition-transform duration-300" id="sidebar-toggle-icon">chevron_left</span>
+    </button>
+  </div>
   <nav class="flex-1 space-y-1">
-    <a href="/" class="flex items-center gap-3 rounded-xl px-4 py-3 font-medium transition-colors duration-200 {% if active_page == 'dashboard' %}bg-white text-blue-900 shadow-sm{% else %}text-slate-600 hover:text-blue-900 hover:bg-slate-200{% endif %}">
-      <span class="material-symbols-outlined">dashboard</span>
-      {{ t.nav_dashboard }}
+    <a href="/" class="group flex items-center gap-3 rounded-lg px-4 py-3 font-medium transition-colors duration-200 {% if active_page == 'dashboard' %}bg-[#1C2F54] text-white{% else %}text-blue-900 hover:bg-[#1C2F54] hover:text-white{% endif %}">
+      <span class="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors duration-200">
+        <span class="material-symbols-outlined">dashboard</span>
+      </span>
+      <span class="nav-label">{{ t.nav_dashboard }}</span>
     </a>
-    <a href="/invoices/" class="flex items-center gap-3 rounded-xl px-4 py-3 font-medium transition-colors duration-200 {% if active_page == 'invoices' %}bg-white text-blue-900 shadow-sm{% else %}text-slate-600 hover:text-blue-900 hover:bg-slate-200{% endif %}">
-      <span class="material-symbols-outlined">receipt_long</span>
-      {{ t.nav_invoices }}
+    <a href="/invoices/" class="group flex items-center gap-3 rounded-lg px-4 py-3 font-medium transition-colors duration-200 {% if active_page == 'invoices' %}bg-[#1C2F54] text-white{% else %}text-blue-900 hover:bg-[#1C2F54] hover:text-white{% endif %}">
+      <span class="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors duration-200">
+        <span class="material-symbols-outlined">receipt_long</span>
+      </span>
+      <span class="nav-label">{{ t.nav_invoices }}</span>
     </a>
-    <a href="/licenses/" class="flex items-center gap-3 rounded-xl px-4 py-3 font-medium transition-colors duration-200 {% if active_page == 'licenses' %}bg-white text-blue-900 shadow-sm{% else %}text-slate-600 hover:text-blue-900 hover:bg-slate-200{% endif %}">
-      <span class="material-symbols-outlined">verified</span>
-      {{ t.nav_licenses }}
+    <a href="/licenses/" class="group flex items-center gap-3 rounded-lg px-4 py-3 font-medium transition-colors duration-200 {% if active_page == 'licenses' %}bg-[#1C2F54] text-white{% else %}text-blue-900 hover:bg-[#1C2F54] hover:text-white{% endif %}">
+      <span class="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors duration-200">
+        <span class="material-symbols-outlined">verified</span>
+      </span>
+      <span class="nav-label">{{ t.nav_licenses }}</span>
     </a>
-    <a href="/machines/" class="flex items-center gap-3 rounded-xl px-4 py-3 font-medium transition-colors duration-200 {% if active_page == 'machines' %}bg-white text-blue-900 shadow-sm{% else %}text-slate-600 hover:text-blue-900 hover:bg-slate-200{% endif %}">
-      <span class="material-symbols-outlined">computer</span>
-      {{ t.nav_machines }}
+    <a href="/machines/" class="group flex items-center gap-3 rounded-lg px-4 py-3 font-medium transition-colors duration-200 {% if active_page == 'machines' %}bg-[#1C2F54] text-white{% else %}text-blue-900 hover:bg-[#1C2F54] hover:text-white{% endif %}">
+      <span class="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors duration-200">
+        <span class="material-symbols-outlined">computer</span>
+      </span>
+      <span class="nav-label">{{ t.nav_machines }}</span>
     </a>
   </nav>
-  <button class="mt-6 w-full bg-primary text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 shadow-md hover:opacity-90 transition-opacity">
-    <span class="material-symbols-outlined">add</span>
-    {{ t.btn_new_asset }}
-  </button>
   <div class="mt-auto pt-4 border-t border-outline/10">
-    <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:text-blue-900 hover:bg-slate-200 transition-colors">
-      <span class="material-symbols-outlined">settings</span>
-      {{ t.btn_settings }}
+    <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-lg text-blue-900 hover:bg-[#1C2F54] hover:text-white transition-colors">
+      <span class="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0">
+        <span class="material-symbols-outlined">settings</span>
+      </span>
+      <span class="nav-label">{{ t.btn_settings }}</span>
     </a>
-    <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:text-blue-900 hover:bg-slate-200 transition-colors">
-      <span class="material-symbols-outlined">help</span>
-      {{ t.btn_support }}
+    <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-lg text-blue-900 hover:bg-[#1C2F54] hover:text-white transition-colors">
+      <span class="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0">
+        <span class="material-symbols-outlined">help</span>
+      </span>
+      <span class="nav-label">{{ t.btn_support }}</span>
     </a>
   </div>
 </aside>

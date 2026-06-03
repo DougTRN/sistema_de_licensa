@@ -1,9 +1,11 @@
 <!DOCTYPE html>
-<html lang="pt-BR" class="light">
+<html lang="{{ html_lang|default:'pt-BR' }}">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>The Ledger - Arquitetural Ledger</title>
+  <meta name="color-scheme" content="dark light" />
+  <meta name="supported-color-schemes" content="dark light" />
+  <title>Ledger - Arquitetural Ledger</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet" />
@@ -36,14 +38,23 @@
 </head>
 <body class="min-h-screen">
   {% if hide_navigation %}
+  <!-- Botão flutuante de tema (apenas em páginas sem navegação: login, registro, etc.) -->
+  <button id="theme-toggle-floating"
+          class="fixed top-4 right-4 z-50 flex h-10 w-10 items-center justify-center rounded-full border border-slate-300 bg-white/80 text-slate-600 shadow-sm backdrop-blur transition hover:bg-white hover:text-slate-800 dark:border-slate-600 dark:bg-slate-800/80 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-slate-100"
+          aria-label="Alternar tema"
+          title="Alternar tema claro/escuro">
+    <span class="material-symbols-outlined text-xl" id="theme-toggle-icon-floating">dark_mode</span>
+  </button>
+  {% endif %}
+  {% if hide_navigation %}
   <main class="min-h-screen">
     <div class="pt-24 px-4 pb-12 sm:px-6 lg:px-8">
   {% else %}
   <div class="flex">
     {% include 'ledger/components/sidebar.html' %}
-    <main class="ml-64 flex-1">
+    <main id="main-content" class="ml-64 flex-1 transition-all duration-300 ease-in-out">
       {% include 'ledger/components/topbar.html' %}
-      <div class="pt-24 px-8 pb-12">
+      <div class="pt-6 px-8 pb-12">
   {% endif %}
         {% if messages %}
         <div class="space-y-4 mb-6">
@@ -63,5 +74,76 @@
     </main>
   </div>
   {% endif %}
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const themeToggleButton = document.getElementById('theme-toggle');
+      const themeToggleIcon = document.getElementById('theme-toggle-icon');
+      const themeToggleFloating = document.getElementById('theme-toggle-floating');
+      const themeToggleIconFloating = document.getElementById('theme-toggle-icon-floating');
+      const savedTheme = window.localStorage.getItem('ledger-theme');
+      const preferredTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      const currentTheme = savedTheme || preferredTheme;
+
+      const applyTheme = (theme) => {
+        if (theme === 'dark') {
+          document.documentElement.classList.add('dark');
+          document.documentElement.classList.remove('light');
+        } else {
+          document.documentElement.classList.remove('dark');
+          document.documentElement.classList.add('light');
+        }
+        const iconName = theme === 'dark' ? 'light_mode' : 'dark_mode';
+        if (themeToggleIcon) themeToggleIcon.textContent = iconName;
+        if (themeToggleIconFloating) themeToggleIconFloating.textContent = iconName;
+        window.localStorage.setItem('ledger-theme', theme);
+      };
+
+      applyTheme(currentTheme);
+
+      // Reage a mudanças de tema do sistema operacional
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+        if (!window.localStorage.getItem('ledger-theme')) {
+          applyTheme(e.matches ? 'dark' : 'light');
+        }
+      });
+
+      themeToggleButton?.addEventListener('click', () => {
+        const nextTheme = document.documentElement.classList.contains('dark') ? 'light' : 'dark';
+        applyTheme(nextTheme);
+      });
+
+      themeToggleFloating?.addEventListener('click', () => {
+        const nextTheme = document.documentElement.classList.contains('dark') ? 'light' : 'dark';
+        applyTheme(nextTheme);
+      });
+
+      // Sidebar toggle
+      const sidebar = document.getElementById('sidebar');
+      const sidebarToggle = document.getElementById('sidebar-toggle');
+      const sidebarToggleIcon = document.getElementById('sidebar-toggle-icon');
+      const mainContent = document.getElementById('main-content');
+
+      const applySidebarState = (collapsed) => {
+        if (collapsed) {
+          sidebar.classList.add('sidebar-collapsed');
+          mainContent.classList.add('sidebar-collapsed');
+          sidebarToggleIcon.textContent = 'chevron_right';
+        } else {
+          sidebar.classList.remove('sidebar-collapsed');
+          mainContent.classList.remove('sidebar-collapsed');
+          sidebarToggleIcon.textContent = 'chevron_left';
+        }
+        localStorage.setItem('ledger-sidebar-collapsed', collapsed);
+      };
+
+      const savedCollapsed = localStorage.getItem('ledger-sidebar-collapsed') === 'true';
+      applySidebarState(savedCollapsed);
+
+      sidebarToggle?.addEventListener('click', () => {
+        const isCollapsed = sidebar.classList.contains('sidebar-collapsed');
+        applySidebarState(!isCollapsed);
+      });
+    });
+  </script>
 </body>
 </html>

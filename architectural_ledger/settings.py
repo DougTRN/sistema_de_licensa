@@ -100,3 +100,7 @@ LOGIN_REDIRECT_URL = "ledger:dashboard"
 LOGOUT_REDIRECT_URL = "ledger:login"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# Session settings - logout when browser is closed
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+SESSION_COOKIE_AGE = 3600  # 1 hour in seconds
