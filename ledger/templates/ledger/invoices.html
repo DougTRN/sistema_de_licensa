@@ -13,19 +13,40 @@
 <div class="grid grid-cols-1 gap-8">
   <div class="space-y-4">
     <div class="bg-surface-container-lowest rounded-3xl shadow-sm border border-slate-200/50 overflow-hidden">
-      <div class="grid grid-cols-4 gap-4 px-6 py-4 text-[0.65rem] font-bold uppercase tracking-[0.24em] text-slate-500 bg-slate-100">
+      <div class="grid grid-cols-5 gap-4 px-6 py-4 text-[0.65rem] font-bold uppercase tracking-[0.24em] text-slate-500 bg-slate-100">
         <div>{{ label_nf_number }}</div>
         <div>Razão Social</div>
         <div class="text-center">{{ label_date }}</div>
         <div class="text-right">{{ label_value }}</div>
+        <div class="text-right">Ações</div>
       </div>
       <div class="space-y-3 p-4">
         {% for record in records %}
-        <div class="grid grid-cols-4 gap-4 items-center bg-white rounded-3xl p-5 shadow-sm hover:bg-slate-50 transition">
+        <div class="grid grid-cols-5 gap-4 items-center bg-white rounded-3xl p-5 shadow-sm hover:bg-slate-50 transition">
           <div class="font-bold text-primary">{{ record.number }}</div>
           <div class="text-sm font-medium text-on-surface">{{ record.supplier }}</div>
           <div class="text-sm text-center text-on-surface-variant">{{ record.date }}</div>
           <div class="text-sm font-bold text-right text-primary">{{ record.value }}</div>
+          <div class="flex justify-end relative">
+            <button class="invoice-action-btn w-10 h-10 rounded-xl bg-surface-container-high text-primary hover:bg-secondary/10 transition" data-id="{{ record.id }}" title="Ações">
+              <span class="material-symbols-outlined">edit</span>
+            </button>
+            <div class="invoice-action-menu hidden absolute right-0 top-12 z-50 w-48 bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 py-2">
+              <button class="action-export w-full text-left px-4 py-2.5 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-3 transition">
+                <span class="material-symbols-outlined text-lg">picture_as_pdf</span> Exportar PDF
+              </button>
+              <button class="action-edit w-full text-left px-4 py-2.5 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-3 transition">
+                <span class="material-symbols-outlined text-lg">edit_note</span> Editar
+              </button>
+              <button class="action-delete w-full text-left px-4 py-2.5 text-sm text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20 flex items-center gap-3 transition">
+                <span class="material-symbols-outlined text-lg">delete</span> Excluir
+              </button>
+              <hr class="my-1 border-slate-200 dark:border-slate-700">
+              <button class="action-cancel w-full text-left px-4 py-2.5 text-sm text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-3 transition">
+                <span class="material-symbols-outlined text-lg">close</span> Cancelar
+              </button>
+            </div>
+          </div>
         </div>
         {% endfor %}
       </div>
@@ -365,6 +386,56 @@
     .catch(error => {
       console.error('Error:', error);
       alert('Erro ao salvar a nota');
+    });
+  });
+
+  // Dropdown menu de ações nas linhas da tabela
+  document.querySelectorAll('.invoice-action-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const menu = btn.nextElementSibling;
+      const isOpen = !menu.classList.contains('hidden');
+
+      // Fecha todos os menus primeiro
+      document.querySelectorAll('.invoice-action-menu').forEach(m => m.classList.add('hidden'));
+      // Abre este se estava fechado
+      if (!isOpen) menu.classList.remove('hidden');
+    });
+  });
+
+  // Fecha menus ao clicar fora
+  document.addEventListener('click', () => {
+    document.querySelectorAll('.invoice-action-menu').forEach(m => m.classList.add('hidden'));
+  });
+
+  // Ações dos botões do menu
+  document.querySelectorAll('.action-export').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const id = btn.closest('.grid').querySelector('.invoice-action-btn').dataset.id;
+      alert('Exportar PDF do registro #' + id);
+    });
+  });
+  document.querySelectorAll('.action-edit').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const id = btn.closest('.grid').querySelector('.invoice-action-btn').dataset.id;
+      alert('Editar registro #' + id);
+    });
+  });
+  document.querySelectorAll('.action-delete').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const id = btn.closest('.grid').querySelector('.invoice-action-btn').dataset.id;
+      if (confirm('Tem certeza que deseja excluir o registro #' + id + '?')) {
+        alert('Registro #' + id + ' excluído!');
+      }
+    });
+  });
+  document.querySelectorAll('.action-cancel').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      btn.closest('.invoice-action-menu').classList.add('hidden');
     });
   });
   });

@@ -25,11 +25,8 @@ pip install -r requirements.txt
 USE_POSTGRES=1
 POSTGRES_DB=architectural_ledger
 POSTGRES_USER=postgres
-<<<<<<< HEAD
 POSTGRES_PASSWORD=(SUA SENHA DO BANCO)
-=======
 POSTGRES_PASSWORD=(SENHA DO BANCO)
->>>>>>> 8d0c89c36dfbb1e9502fb583581bc90861d4d016
 POSTGRES_HOST=localhost
 POSTGRES_PORT=(PORTA DO BANCO)
 ```

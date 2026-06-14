@@ -212,8 +212,8 @@ TRANSLATIONS = {
 
 
 def get_language(request):
-    lang = request.GET.get("lang", "en")
-    return lang if lang in TRANSLATIONS else "en"
+    lang = request.GET.get("lang", "pt")
+    return lang if lang in TRANSLATIONS else "pt"
 
 
 def get_toggle_url(request, lang):
@@ -340,6 +340,48 @@ def invoices(request):
         }
     )
     return render(request, "ledger/invoices.html", context)
+
+
+@login_required(login_url=reverse_lazy("ledger:login"))
+def profile(request):
+    context = get_base_context(request, "profile")
+    context.update({"page_title": "Perfil"})
+    return render(request, "ledger/profile.html", context)
+
+
+@login_required(login_url=reverse_lazy("ledger:login"))
+def save_invoice(request):
+    if request.method == 'POST':
+        try:
+            invoice = InvoiceRecord(
+                number=request.POST.get('invoice_number', ''),
+                supplier=request.POST.get('invoice_supplier', ''),
+                supplier_cnpj=request.POST.get('supplier_cnpj', ''),
+                date=datetime.strptime(request.POST.get('invoice_date', ''), '%Y-%m-%d').date(),
+                value=float(request.POST.get('invoice_value', 0)),
+                currency=request.POST.get('invoice_currency', 'BRL'),
+                observations=request.POST.get('invoice_observations', ''),
+                file_name=request.POST.get('invoice_file_name', '')
+            )
+            invoice.save()
+            return JsonResponse({
+                'success': True,
+                'message': 'Invoice saved successfully',
+                'record': {
+                    'id': invoice.id,
+                    'number': invoice.number,
+                    'supplier': invoice.supplier,
+                    'date': invoice.date.strftime('%b %d, %Y'),
+                    'value': f"${invoice.value:,.2f}",
+                    'file_name': invoice.file_name or 'No file'
+                }
+            })
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': str(e)
+            }, status=400)
+    return JsonResponse({'success': False, 'message': 'Invalid method'}, status=405)
 
 
 @login_required(login_url=reverse_lazy("ledger:login"))
