@@ -4,9 +4,12 @@ from django.db import models
 class InvoiceRecord(models.Model):
     number = models.CharField(max_length=50)
     supplier = models.CharField(max_length=255)
+    supplier_cnpj = models.CharField(max_length=18, blank=True, null=True)
     date = models.DateField()
     value = models.DecimalField(max_digits=12, decimal_places=2)
     currency = models.CharField(max_length=10, default="BRL")
+    observations = models.TextField(blank=True, null=True)
+    file_name = models.CharField(max_length=255, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

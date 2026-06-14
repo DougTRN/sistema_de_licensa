@@ -25,9 +25,9 @@ pip install -r requirements.txt
 USE_POSTGRES=1
 POSTGRES_DB=architectural_ledger
 POSTGRES_USER=postgres
-POSTGRES_PASSWORD=27072025
+POSTGRES_PASSWORD=(SUA SENHA DO BANCO)
 POSTGRES_HOST=localhost
-POSTGRES_PORT=5432
+POSTGRES_PORT=(PORTA DO BANCO)
 ```
 
 5. Rode as migrações e inicie o servidor:

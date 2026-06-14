@@ -13,24 +13,19 @@
 <div class="grid grid-cols-1 gap-8">
   <div class="space-y-4">
     <div class="bg-surface-container-lowest rounded-3xl shadow-sm border border-slate-200/50 overflow-hidden">
-      <div class="grid grid-cols-5 gap-4 px-6 py-4 text-[0.65rem] font-bold uppercase tracking-[0.24em] text-slate-500 bg-slate-100">
+      <div class="grid grid-cols-4 gap-4 px-6 py-4 text-[0.65rem] font-bold uppercase tracking-[0.24em] text-slate-500 bg-slate-100">
         <div>{{ label_nf_number }}</div>
-        <div>{{ label_supplier }}</div>
+        <div>Razão Social</div>
         <div class="text-center">{{ label_date }}</div>
         <div class="text-right">{{ label_value }}</div>
-        <div class="text-right">{{ label_files }}</div>
       </div>
       <div class="space-y-3 p-4">
         {% for record in records %}
-        <div class="grid grid-cols-5 gap-4 items-center bg-white rounded-3xl p-5 shadow-sm hover:bg-slate-50 transition">
+        <div class="grid grid-cols-4 gap-4 items-center bg-white rounded-3xl p-5 shadow-sm hover:bg-slate-50 transition">
           <div class="font-bold text-primary">{{ record.number }}</div>
           <div class="text-sm font-medium text-on-surface">{{ record.supplier }}</div>
           <div class="text-sm text-center text-on-surface-variant">{{ record.date }}</div>
           <div class="text-sm font-bold text-right text-primary">{{ record.value }}</div>
-          <div class="flex justify-end gap-2">
-            <button class="w-10 h-10 rounded-xl bg-surface-container-high text-primary hover:bg-secondary/10 transition"><span class="material-symbols-outlined">picture_as_pdf</span></button>
-            <button class="w-10 h-10 rounded-xl bg-surface-container-high text-primary hover:bg-secondary/10 transition"><span class="material-symbols-outlined">code</span></button>
-          </div>
         </div>
         {% endfor %}
       </div>
@@ -38,8 +33,8 @@
   </div>
 </div>
 
-<div id="invoice-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-slate-900/40 p-4">
-  <div class="w-full max-w-3xl overflow-hidden rounded-[2rem] bg-white shadow-2xl">
+<div id="invoice-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-slate-900/70 p-4">
+  <div class="w-full max-w-3xl max-h-[75vh] overflow-y-auto rounded-3xl bg-white shadow-2xl">
     <div class="flex items-center justify-between border-b border-slate-200 px-6 py-5">
       <div>
         <h2 class="text-2xl font-bold text-slate-900">{{ modal_new_invoice_title }}</h2>
@@ -50,67 +45,87 @@
       </button>
     </div>
     <form id="invoice-form" class="space-y-6 p-6">
+        {% csrf_token %}
       <div class="grid gap-4 md:grid-cols-2">
         <div>
-          <label for="invoice-cnpj" class="block text-xs uppercase tracking-[0.24em] text-slate-500">{{ modal_cnpj_label }}</label>
-          <input id="invoice-cnpj" type="text" placeholder="00.000.000/0000-00" class="mt-2 w-full rounded-3xl bg-surface-container-high py-3 px-4 text-sm text-slate-900 border-none" />
+          <label for="invoice-cnpj" class="block text-xs uppercase tracking-[0.24em] text-slate-500">CNPJ do Emitente</label>
+            <input id="invoice-cnpj" type="text" placeholder="00.000.000/0001-00" aria-label="CNPJ/CPF do Emitente" class="mt-2 w-full rounded-3xl bg-surface-container-high py-3 px-4 text-sm text-slate-900 border-none" />
         </div>
         <div>
-          <label for="invoice-supplier" class="block text-xs uppercase tracking-[0.24em] text-slate-500">{{ modal_supplier_label }}</label>
-          <input id="invoice-supplier" type="text" placeholder="Fornecedor" class="mt-2 w-full rounded-3xl bg-surface-container-high py-3 px-4 text-sm text-slate-900 border-none" />
+          <label for="invoice-supplier" class="block text-xs uppercase tracking-[0.24em] text-slate-500">Razão Social</label>
+            <input id="invoice-supplier" type="text" placeholder="LTDA" aria-label="Razão Social do Emitente" class="mt-2 w-full rounded-3xl bg-surface-container-high py-3 px-4 text-sm text-slate-900 border-none" />
         </div>
       </div>
       <div class="grid gap-4 md:grid-cols-2">
         <div>
-          <label for="invoice-number" class="block text-xs uppercase tracking-[0.24em] text-slate-500">{{ modal_nf_number_label }}</label>
-          <input id="invoice-number" type="text" placeholder="Ex: 102.394.881" class="mt-2 w-full rounded-3xl bg-surface-container-high py-3 px-4 text-sm text-slate-900 border-none" />
+          <label for="invoice-number" class="block text-xs uppercase tracking-[0.24em] text-slate-500">Número da Nota</label>
+          <input id="invoice-number" type="text" placeholder="NF" aria-label="Número da Nota" class="mt-2 w-full rounded-3xl bg-surface-container-high py-3 px-4 text-sm text-slate-900 border-none" />
+
+            <label for="invoice-date" class="block text-xs uppercase tracking-[0.24em] text-slate-500 mt-4">Data</label>
+            <input id="invoice-date" type="date" aria-label="Data de Emissão" class="mt-2 w-full rounded-3xl bg-surface-container-high py-3 px-4 text-sm text-slate-900 border-none" />
         </div>
-        <div>
-          <label for="invoice-series" class="block text-xs uppercase tracking-[0.24em] text-slate-500">{{ modal_series_label }}</label>
-          <input id="invoice-series" type="text" placeholder="Ex: 01" class="mt-2 w-full rounded-3xl bg-surface-container-high py-3 px-4 text-sm text-slate-900 border-none" />
-        </div>
-      </div>
-      <div class="grid gap-4 md:grid-cols-3">
-        <div>
-          <label for="invoice-date" class="block text-xs uppercase tracking-[0.24em] text-slate-500">{{ modal_date_label }}</label>
-          <input id="invoice-date" type="date" class="mt-2 w-full rounded-3xl bg-surface-container-high py-3 px-4 text-sm text-slate-900 border-none" />
-        </div>
-        <div>
-          <label for="invoice-value" class="block text-xs uppercase tracking-[0.24em] text-slate-500">{{ modal_value_label }}</label>
-          <input id="invoice-value" type="number" step="0.01" min="0" placeholder="0.00" class="mt-2 w-full rounded-3xl bg-surface-container-high py-3 px-4 text-sm text-slate-900 border-none" />
+        <div class="grid gap-4">
+          <div>
+            <label for="invoice-series" class="block text-xs uppercase tracking-[0.24em] text-slate-500">{{ modal_series_label }}</label>
+            <input id="invoice-series" type="text" placeholder="Série" class="mt-2 w-full rounded-3xl bg-surface-container-high py-3 px-4 text-sm text-slate-900 border-none" />
+          </div>
+          <div>
+            <label for="invoice-value" class="block text-xs uppercase tracking-[0.24em] text-slate-500">Valor Total</label>
+            <input id="invoice-value" type="number" step="0.01" min="0" placeholder="00.0" aria-label="Valor Total" class="mt-2 w-full rounded-3xl bg-surface-container-high py-3 px-4 text-sm text-slate-900 border-none" />
+          </div>
         </div>
       </div>
       <div>
-        <label class="block text-xs uppercase tracking-[0.24em] text-slate-500">{{ modal_attachment_label }}</label>
-        <div class="mt-2 rounded-3xl border border-dashed border-slate-300 bg-surface-container-high p-8 text-center text-slate-500">
+        <label for="invoice-observations" class="block text-xs uppercase tracking-[0.24em] text-slate-500">Observações</label>
+        <textarea id="invoice-observations" rows="3" placeholder="Observações" class="mt-2 w-full rounded-3xl bg-surface-container-high py-3 px-4 text-sm text-slate-900 border-none"></textarea>
+      </div>
+      <div>
+        <label class="block text-xs uppercase tracking-[0.24em] text-slate-500">Anexar Documento (PDF)</label>
+        <div id="invoice-dropzone" class="mt-2 rounded-3xl border-2 border-dashed border-slate-300 bg-surface-container-high p-8 text-center text-slate-500 cursor-pointer hover:border-slate-400 hover:bg-slate-900 transition">
           <span class="material-symbols-outlined text-3xl mb-3 inline-block">cloud_upload</span>
           <p class="text-sm">Arraste e solte ou clique para anexar</p>
-          <p class="text-xs text-slate-400 mt-1">{{ form_drop_note }}</p>
+          <p class="text-xs text-slate-400 mt-1">Apenas arquivos PDF são aceitos (máximo 10MB)</p>
+          <input id="invoice-file" type="file" accept=".pdf" class="hidden" aria-label="Anexar documento PDF" />
+        </div>
+        <div id="invoice-file-feedback" class="mt-2 hidden">
+          <p id="invoice-file-name" class="text-sm text-green-400">✓ Arquivo selecionado: </p>
         </div>
       </div>
       <input id="invoice-supplier-cnpj-hidden" type="hidden" name="supplier_cnpj" />
       <input id="invoice-value-hidden" type="hidden" name="invoice_value" />
+      <input id="invoice-number-hidden" type="hidden" name="invoice_number" />
+      <input id="invoice-date-hidden" type="hidden" name="invoice_date" />
+      <input id="invoice-supplier-hidden" type="hidden" name="invoice_supplier" />
+      <input id="invoice-observations-hidden" type="hidden" name="invoice_observations" />
       <input id="invoice-currency-hidden" type="hidden" name="invoice_currency" />
+      <input id="invoice-file-hidden" type="hidden" name="invoice_file_name" />
       <div class="flex flex-col gap-3 sm:flex-row sm:justify-end">
-        <button type="button" id="invoice-cancel" class="w-full rounded-3xl border border-slate-300 bg-white py-3 text-sm font-semibold text-slate-700 hover:bg-slate-100 transition sm:w-auto px-6">{{ modal_cancel_button }}</button>
-        <button type="submit" class="w-full rounded-3xl bg-primary py-3 text-sm font-semibold text-white hover:opacity-90 transition sm:w-auto px-6">{{ modal_save_button }}</button>
+        <button type="button" id="invoice-cancel" class="w-full rounded-3xl border border-slate-300 bg-white py-3 text-sm font-semibold text-slate-700 hover:bg-slate-100 transition sm:w-auto px-6">Cancelar</button>
+        <button type="submit" class="w-full rounded-3xl bg-primary py-3 text-sm font-semibold text-white hover:opacity-90 transition sm:w-auto px-6">Salvar</button>
       </div>
     </form>
   </div>
 </div>
 
 <script>
-  const invoiceModal = document.getElementById('invoice-modal');
-  const openInvoiceButton = document.getElementById('open-new-invoice-modal');
-  const closeInvoiceButton = document.getElementById('close-new-invoice-modal');
-  const cancelInvoiceButton = document.getElementById('invoice-cancel');
-  const cnpjInput = document.getElementById('invoice-cnpj');
-  const supplierInput = document.getElementById('invoice-supplier');
-  const hiddenCnpjInput = document.getElementById('invoice-supplier-cnpj-hidden');
+  document.addEventListener('DOMContentLoaded', () => {
+    const invoiceModal = document.getElementById('invoice-modal');
+    const openInvoiceButton = document.getElementById('open-new-invoice-modal');
+    const closeInvoiceButton = document.getElementById('close-new-invoice-modal');
+    const cancelInvoiceButton = document.getElementById('invoice-cancel');
+    const cnpjInput = document.getElementById('invoice-cnpj');
+    const supplierInput = document.getElementById('invoice-supplier');
+    const invoiceNumberInput = document.getElementById('invoice-number');
+    const hiddenCnpjInput = document.getElementById('invoice-supplier-cnpj-hidden');
   const invoiceValueInput = document.getElementById('invoice-value');
   const invoiceCurrencySelect = document.getElementById('invoice-currency');
+  const invoiceObservationsInput = document.getElementById('invoice-observations');
   const invoiceValueEquivalent = document.getElementById('invoice-value-equivalent');
   const invoiceValueHidden = document.getElementById('invoice-value-hidden');
+  const invoiceNumberHidden = document.getElementById('invoice-number-hidden');
+  const invoiceDateHidden = document.getElementById('invoice-date-hidden');
+  const invoiceSupplierHidden = document.getElementById('invoice-supplier-hidden');
+  const invoiceObservationsHidden = document.getElementById('invoice-observations-hidden');
   const invoiceCurrencyHidden = document.getElementById('invoice-currency-hidden');
 
   const supplierMap = {
@@ -170,16 +185,188 @@
     }
   });
 
+  // Enforce numeric-only inputs for specific fields
+  const invoiceSeriesInput = document.getElementById('invoice-series');
+
+  // Mask for CNPJ while typing (format: 00.000.000/0001-00)
+  const maskCnpj = (el) => {
+    if (!el) return;
+    const format = (v) => {
+      const d = v.replace(/\D/g, '').slice(0,14);
+      let out = '';
+      if (d.length > 0) out += d.slice(0,2);
+      if (d.length >= 3) out += '.' + d.slice(2,5);
+      if (d.length >= 6) out += '.' + d.slice(5,8);
+      if (d.length >= 9) out += '/' + d.slice(8,12);
+      if (d.length >= 13) out += '-' + d.slice(12,14);
+      return out;
+    };
+    el.addEventListener('input', () => {
+      const start = el.selectionStart;
+      const before = el.value;
+      const masked = format(before);
+      el.value = masked;
+      try { el.setSelectionRange(el.value.length, el.value.length); } catch(e){}
+    });
+    el.addEventListener('paste', (e) => {
+      const paste = (e.clipboardData || window.clipboardData).getData('text');
+      const only = paste.replace(/\D/g,'').slice(0,14);
+      if (only) {
+        e.preventDefault();
+        const masked = format(only);
+        document.execCommand('insertText', false, masked);
+      }
+    });
+  };
+
+  const enforceDigitsOnly = (el) => {
+    if (!el) return;
+    el.addEventListener('input', () => {
+      const pos = el.selectionStart;
+      const cleaned = el.value.replace(/\D+/g, '');
+      if (el.value !== cleaned) {
+        el.value = cleaned;
+        try { el.setSelectionRange(Math.max(pos-1,0), Math.max(pos-1,0)); } catch(e){}
+      }
+    });
+    el.addEventListener('paste', (e) => {
+      const paste = (e.clipboardData || window.clipboardData).getData('text');
+      if (/\D/.test(paste)) {
+        e.preventDefault();
+        const only = paste.replace(/\D+/g, '');
+        document.execCommand('insertText', false, only);
+      }
+    });
+  };
+
+  const enforceDecimal = (el) => {
+    if (!el) return;
+    el.addEventListener('input', () => {
+      const pos = el.selectionStart;
+      let v = el.value.replace(/,/g, '.').replace(/[^0-9.]/g, '');
+      const parts = v.split('.');
+      if (parts.length > 2) v = parts.shift() + '.' + parts.join('');
+      if (el.value !== v) {
+        el.value = v;
+        try { el.setSelectionRange(Math.max(pos-1,0), Math.max(pos-1,0)); } catch(e){}
+      }
+    });
+    el.addEventListener('paste', (e) => {
+      const paste = (e.clipboardData || window.clipboardData).getData('text');
+      if (/[^0-9.,]/.test(paste)) {
+        e.preventDefault();
+        const only = paste.replace(/[^0-9.,]+/g, '').replace(/,/g, '.');
+        document.execCommand('insertText', false, only);
+      }
+    });
+  };
+
+  // Apply: CNPJ mask + allow only digits for some fields
+  maskCnpj(cnpjInput);
+  enforceDigitsOnly(invoiceSeriesInput);
+  enforceDigitsOnly(invoiceNumberInput);
+  enforceDecimal(invoiceValueInput);
+
   invoiceValueInput?.addEventListener('input', updateEquivalentValue);
   invoiceCurrencySelect?.addEventListener('change', updateEquivalentValue);
+
+  // File upload with PDF validation
+  const invoiceDropzone = document.getElementById('invoice-dropzone');
+  const invoiceFileInput = document.getElementById('invoice-file');
+  const invoiceFileFeedback = document.getElementById('invoice-file-feedback');
+  const invoiceFileName = document.getElementById('invoice-file-name');
+  const invoiceFileHidden = document.getElementById('invoice-file-hidden');
+
+  const validatePDF = (file) => {
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+      alert('Apenas arquivos PDF são permitidos');
+      return false;
+    }
+    if (file.size > maxSize) {
+      alert('Arquivo excede o tamanho máximo de 10MB');
+      return false;
+    }
+    return true;
+  };
+
+  const handleFile = (file) => {
+    if (validatePDF(file)) {
+      invoiceFileHidden.value = file.name;
+      invoiceFileName.textContent = `✓ Arquivo selecionado: ${file.name}`;
+      invoiceFileFeedback.classList.remove('hidden');
+    } else {
+      invoiceFileHidden.value = '';
+      invoiceFileFeedback.classList.add('hidden');
+    }
+  };
+
+  invoiceDropzone?.addEventListener('click', () => invoiceFileInput?.click());
+  invoiceFileInput?.addEventListener('change', (e) => {
+    if (e.target.files && e.target.files[0]) {
+      handleFile(e.target.files[0]);
+    }
+  });
+
+  invoiceDropzone?.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    invoiceDropzone.classList.add('border-primary', 'bg-slate-800');
+  });
+
+  invoiceDropzone?.addEventListener('dragleave', () => {
+    invoiceDropzone.classList.remove('border-primary', 'bg-slate-800');
+  });
+
+  invoiceDropzone?.addEventListener('drop', (e) => {
+    e.preventDefault();
+    invoiceDropzone.classList.remove('border-primary', 'bg-slate-800');
+    if (e.dataTransfer?.files && e.dataTransfer.files[0]) {
+      handleFile(e.dataTransfer.files[0]);
+    }
+  });
 
   document.getElementById('invoice-form')?.addEventListener('submit', (event) => {
     event.preventDefault();
     hiddenCnpjInput.value = normalizeCnpj(cnpjInput.value);
     invoiceValueHidden.value = invoiceValueInput.value;
     invoiceCurrencyHidden.value = invoiceCurrencySelect.value;
-    alert('Nota cadastrada com sucesso!');
-    closeModal();
+    invoiceNumberHidden.value = invoiceNumberInput?.value || '';
+    invoiceDateHidden.value = document.getElementById('invoice-date')?.value || '';
+    invoiceSupplierHidden.value = supplierInput?.value || '';
+    invoiceObservationsHidden.value = invoiceObservationsInput?.value || '';
+    invoiceFileHidden.value = invoiceFileHidden.value || '';
+    
+    const formData = new FormData();
+    formData.append('supplier_cnpj', normalizeCnpj(cnpjInput.value));
+    formData.append('invoice_value', invoiceValueInput.value);
+    formData.append('invoice_currency', invoiceCurrencySelect.value);
+    formData.append('invoice_number', invoiceNumberInput?.value || '');
+    formData.append('invoice_date', document.getElementById('invoice-date')?.value || '');
+    formData.append('invoice_supplier', supplierInput?.value || '');
+    formData.append('invoice_observations', invoiceObservationsInput?.value || '');
+    formData.append('invoice_file_name', invoiceFileHidden.value || '');
+
+    fetch('/invoices/save/', {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || ''
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        alert('Nota cadastrada com sucesso!');
+        location.reload();
+      } else {
+        alert('Erro ao salvar: ' + data.message);
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('Erro ao salvar a nota');
+    });
+  });
   });
 </script>
 {% endblock %}
